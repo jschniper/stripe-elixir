@@ -48,7 +48,7 @@ defmodule Stripe.Customer do
   @type id              :: binary
   @type object          :: binary
   @type livemode        :: boolean
-  @type cards           :: [] #[Stripe.Card.t]
+  @type cards           :: [Stripe.Card.t]
   @type created         :: {{1970..10000, 1..12, 1..31}, {0..23, 0..59, 0..59}}
   @type account_balance :: integer
   @type currency        :: binary
@@ -82,7 +82,7 @@ defmodule Stripe.Customer do
     %Stripe.Customer{
       id: data[:id],
       object: data[:object],
-      cards: data[:cards],
+      cards: data[:sources][:data],
       created: datetime,
       account_balance: data[:account_balance],
       currency: data[:currency],

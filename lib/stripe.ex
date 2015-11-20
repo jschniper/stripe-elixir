@@ -38,7 +38,11 @@ defmodule Stripe do
   Returns Record or ArgumentError
   """
   def process_response_body(body) do
-    JSEX.decode! body, [{:labels, :atom}]
+    body
+    |> Poison.decode!
+    |> deep_convert
+
+    #|> Enum.map(fn({k, v}) -> {String.to_atom(k), v} end)
   end
 
   @doc """
@@ -55,7 +59,7 @@ defmodule Stripe do
       |> Dict.merge(headers)
       |> Dict.to_list
 
-    response = case method do
+    {code, response} = case method do
       :get     -> get(     endpoint,     rh, options)
       :put     -> put(     endpoint, rb, rh, options)
       :head    -> head(    endpoint,     rh, options)
@@ -65,7 +69,16 @@ defmodule Stripe do
       :options -> options( endpoint,     rh, options)
     end
 
-    response.body
+    case {code, response} do
+      {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
+        body
+      # {:ok, %HTTPoison.Response{status_code: 404}} ->
+      #   raise ArgumentError, message: "Page Not Found" 
+      # {:ok, %HTTPoison.Response{status_code: 400}} ->
+      #   raise ArgumentError, message: "Bad Request"
+      # {:error, %HTTPoison.Error{reason: reason}} ->
+      #   raise ArgumentError, message: "Internal Server Error"
+    end
   end
 
   @doc """
@@ -80,5 +93,19 @@ defmodule Stripe do
   defp url_encode_keyvalue({k, v}) do
     key = Atom.to_string(k) 
     "#{key}=#{v}"
+  end
+
+  defp deep_convert(obj) do
+    cond do
+      Enumerable.impl_for(obj) ->
+        if is_list(obj) && length(obj) > 0 do
+          Enum.map(obj, fn(i) -> deep_convert(i) end)
+        else
+          Enum.map(obj, fn({k,v}) -> {String.to_atom(k), deep_convert(v)} end)
+        end
+      true ->
+        obj
+    end
+
   end
 end

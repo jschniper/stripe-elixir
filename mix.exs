@@ -4,7 +4,7 @@ defmodule Stripe.Mixfile do
   def project do
     [ app: :stripe,
       version: "0.2.0",
-      elixir: "~> 0.15.0",
+      elixir: "~> 1.0.0",
       deps: deps ]
   end
 
@@ -20,9 +20,8 @@ defmodule Stripe.Mixfile do
   # { :barbat, "~> 0.1", github: "elixir-lang/barbat" }
   defp deps do
     [
-      { :httpoison, "~> 0.3" },
-      { :hackney, "~> 0.13.1" }, # not included in hex version of httpoison :(
-      { :jsex, "~> 2.0.0" } 
+      {:httpoison, "~> 0.7"},
+      {:poison, "~> 1.5"}
     ]
   end
 end

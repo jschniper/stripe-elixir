@@ -90,4 +90,14 @@ defmodule Stripe.Customers do
       []
     end
   end
+
+  def find(id, params \\ []) do
+    obj = Stripe.make_request :get, "#{@endpoint}/#{id}", params
+
+    if obj[:object] do
+      Stripe.Customer.from_keyword obj
+    else
+      []
+    end
+  end
 end
